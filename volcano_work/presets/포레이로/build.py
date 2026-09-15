@@ -1064,14 +1064,43 @@ if getattr(spec, "SFX_WHOOSH", None):
             if len(sfx_at) >= spec.SFX_MAX:
                 break
         sfx_at.sort()
-        for t in sfx_at:
-            ins += ["-i", wav]
+        # ★사용자가 특정 자리의 효과음을 빼거나 바꿀 수 있다 (2026-09-15 mk01 "너 부산 다시 내려갈래?" 자리).
+        #   episode.py:  SFX_RULES = [(("D", 5), None), (("N", 2), "sfx/boom.wav", -12)]
+        #   앵커 ("D", n) = n번째 대사 블록 시작, ("N", n) = n번째 나레 마디 시작, 숫자 = 완성본 초.
+        #   둘째가 None 이면 그 자리(±0.5초)의 whoosh 를 뺀다. 파일이면 whoosh 대신 그 파일을 깐다(셋째 = dB, 기본 SFX_DB).
+        _rows_d = [r for r in rows if r["kind"] == "D"]
+        _rows_n = [r for r in rows if r["kind"] == "N"]
+        def _anchor_t(a):
+            if isinstance(a, (int, float)):
+                return float(a)
+            kind, n = a[0], int(a[1])
+            src_rows = _rows_d if kind == "D" else _rows_n
+            if not (1 <= n <= len(src_rows)):
+                sys.exit(f"SFX_RULES 앵커 {a!r} — {kind} 블록이 {len(src_rows)}개뿐이다")
+            return src_rows[n - 1]["off"]
+        sfx_list = [(t, wav, spec.SFX_DB) for t in sfx_at]
+        for _rule in getattr(episode, "SFX_RULES", []):
+            _t = _anchor_t(_rule[0])
+            _before = len(sfx_list)
+            sfx_list = [x for x in sfx_list if abs(x[0] - _t) > 0.5]
+            if _rule[1] is None:
+                print(f"  효과음 {_t:.1f}s 자리 뺌 (SFX_RULES, {_before - len(sfx_list)}개)")
+            else:
+                _f = _rule[1] if os.path.isabs(_rule[1]) else os.path.join(wd, _rule[1])
+                if not os.path.exists(_f):
+                    sys.exit(f"SFX_RULES 파일이 없다: {_f}")
+                _db = _rule[2] if len(_rule) > 2 else spec.SFX_DB
+                sfx_list.append((_t, _f, _db))
+                print(f"  효과음 {_t:.1f}s 자리 → {os.path.basename(_f)} ({_db}dB)")
+        sfx_list.sort()
+        for t, _f, _db in sfx_list:
+            ins += ["-i", _f]
             ms = int(max(0, t - 0.06) * 1000)
-            fc2.append(f"[{k}:a]adelay={ms}|{ms},volume={spec.SFX_DB}dB[w{k}]")
+            fc2.append(f"[{k}:a]adelay={ms}|{ms},volume={_db}dB[w{k}]")
             mix.append(f"[w{k}]")
             k += 1
-        print(f"  장면전환 효과음 {len(sfx_at)}개 (문턱 {thr:.0f}) "
-              + " ".join(f"{t:.1f}s" for t in sfx_at))
+        print(f"  장면전환 효과음 {len(sfx_list)}개 (문턱 {thr:.0f}) "
+              + " ".join(f"{t:.1f}s" for t, _, _ in sfx_list))
 fc2.append("".join(mix) + f"amix=inputs={len(mix)}:normalize=0:dropout_transition=0,"
            f"alimiter=limit=0.97,"
            f"loudnorm=I={spec.MASTER_LUFS}:TP={spec.MASTER_TP}:LRA={spec.LRA_MAX},"

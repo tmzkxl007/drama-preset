@@ -39,7 +39,9 @@ for i, t in enumerate(texts, 1):
     #   나레를 고쳐도 옛 목소리가 그대로 남았다(§17-24). 옆에 문구를 적어 두고 비교한다.
     sig = os.path.join(nd, f"n{i}.txt")
     old = io.open(sig, encoding="utf-8").read() if os.path.exists(sig) else None
-    stale = old is not None and old != spoken
+    # ★목소리·배속이 바뀌어도 다시 굽는다 — 문구만 보면 보이스를 바꿔도 옛 목소리가 남는다(2026-09-15 승문).
+    stamp = f"{spec.TTS_VOICE}|{spec.TTS_TEMPO}|{spoken}"
+    stale = old is not None and old != stamp
     if stale:
         print(f"  ★n{i} 문구가 바뀌었다 — 다시 굽는다")
     if stale or not (os.path.exists(raw) and os.path.getsize(raw) > 20000):
@@ -57,7 +59,7 @@ for i, t in enumerate(texts, 1):
             open(raw, "wb").write(urllib.request.urlopen(req, timeout=180).read())
         except urllib.error.HTTPError as e:
             sys.exit(f"n{i}: HTTP {e.code} {e.read().decode('utf-8','replace')[:300]}")
-    io.open(sig, "w", encoding="utf-8").write(spoken)
+    io.open(sig, "w", encoding="utf-8").write(stamp)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", raw,
                     "-af", f"loudnorm=I={spec.NARR_LUFS}:TP=-1.5:LRA=9,aresample=48000",
                     "-ac", "2", "-ar", "48000", fin], check=True)

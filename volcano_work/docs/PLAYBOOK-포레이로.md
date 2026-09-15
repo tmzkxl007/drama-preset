@@ -1144,3 +1144,38 @@ ZOOM 0.60 이 1080 폭에 걸려 648px 만 남고 제목·로고까지 그림에
 - (§17-44 보강) 편집자 나레 음성이 대사에 붙어 있으면 **`src.mp4` 에서 그 구간을 `volume=enable='between(t,a,b)':volume=0` 으로 지우고**,
   `asr_ko.json` 에서도 그 낱말을 빼라(원본은 `_orig` 로 보관). 그러면 D 블록 꼬리가 물어도 침묵만 남아 앞 절반 대사도 살릴 수 있다.
   대사가 본문이 되면 `STYLE = "tome"` 으로 잰다 — 다만 D 블록 안의 원작 컷은 분당 컷수에 안 잡혀 27~30 으로 떨어진다(mk01 2차).
+
+### 17-45. mk01 에서 새로 생긴 손잡이 세 개 — 효과음 자리 · 배경음악 빼기 · 커스텀 보이스 (2026-09-15)
+
+**① 특정 자리의 휙 효과음을 빼거나 바꾼다 — `SFX_RULES`.** 사용자: "너 부산 다시 내려갈래? 여기 대사에서 나오는 효과음 변경 가능할까?"
+```python
+SFX_RULES = [(("D", 5), None),                 # 5번째 대사 블록 시작 자리(±0.5초)의 whoosh 를 뺀다
+             (("N", 2), "sfx/boom.wav", -12)]  # 2번째 나레 마디 시작에 다른 파일을 깐다 (셋째 = dB)
+```
+앵커는 효과자막과 같은 꼴(블록 번호)이라 나레 길이가 바뀌어도 자리가 안 밀린다. `build.py` 가 "효과음 38.7s 자리 뺌" 으로 찍어 준다.
+
+**② 대사 구간 배경음악 빼기 — demucs.** 사용자: "너 부산 다시 내려갈래 할 때 배경음악을 좀 지워 줘" → 이어서 "똑바로 하자"까지.
+이 PC 의 시스템 파이썬(`python`, 3.11)에 demucs 4.1 + torch(CPU)가 있다. venv 가 아니다.
+```
+ffmpeg -i src_orig.mp4 -vn -ac 2 -ar 44100 _src_audio.wav
+python -m demucs --two-stems=vocals -n htdemucs -o _sep _src_audio.wav      # 57초에 30초쯤 걸린다
+```
+`_sep/htdemucs/_src_audio/vocals.wav` 를 원음과 섞되 **구간 가중치 g(t)** 로 넘긴다(앞뒤 0.1초 램프):
+```
+[0:a]volume='1-G':eval=frame[o]; [1:a]volume='G':eval=frame[v]; [o][v]amix=normalize=0
+G = max(0,min(1,(t-45.62)/0.1))*max(0,min(1,(55.30-t)/0.1))
+```
+그 결과 위에 §17-44 의 편집자 나레 mute 를 다시 건다(순서 주의 — `src_orig.mp4` 에서 매번 새로 만든다).
+
+**③ 커스텀 보이스는 API 키 계정에 있어야 한다.** 스튜디오에서 만든 "드라마"는 `/v1/voices`·`/v1/custom-voices` 어디에도 안 떴다
+(계정이 다르다). 사용자가 준 샘플로 **즉시 클로닝**해서 이 키에 만들었다:
+```
+POST https://api.typecast.ai/v1/custom-voices/instant-clone   (multipart: file=wav, model=ssfm-v30, name=드라마)
+→ {"voice_id":"uc_6aa8eb42d1b77888a4240797","status":"completed"}
+```
+필드 이름은 `name` 이다(`voice_name` 은 422). 샘플은 말이 있는 구간만 잘라(21초) loudnorm -18 로 넣었다.
+`episode.py` 에서 `spec.TTS_VOICE = "uc_…"` · `spec.TTS_TEMPO = 1.3` 으로 덮어쓴다.
+★`tts.py` 의 캐시 도장에 **목소리·배속**을 넣었다 — 전에는 문구만 봐서 보이스를 바꿔도 옛 목소리가 남았다(§17-25 와 같은 병).
+
+**mk01 최종(사용자 확정)**: tome 문체 · 대사 7덩이 · 나레 8마디 128자(44%) · 45.8초 · 마지막 마디는 사용자 취향의 "내 생각" 한 줄
+("넘버투 어쩌고 하더니 눈빛 한 방에 열라 쫄았네"). 남는 경고 두 개(나레 비중 44%·분당 컷 31.4)는 사용자가 이대로 확정했다.
