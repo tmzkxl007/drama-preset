@@ -1091,7 +1091,16 @@ if getattr(spec, "SFX_WHOOSH", None):
                 sys.exit(f"SFX_RULES 앵커 {a!r} — {kind} 블록이 {len(src_rows)}개뿐이다")
             return src_rows[n - 1]["off"]
         sfx_list = [(t, wav, spec.SFX_DB) for t in sfx_at]
-        for _rule in getattr(episode, "SFX_RULES", []):
+        # ★앞머리 효과음(spec.OPEN_SFX = (파일이름, dB)) — 두둥픽의 「두둥 북소리」를 0초에 깐다(사용자 2026-09-15).
+        #   LLJtlSPtAMU/sfx/<파일> 을 쓴다. episode.py 의 SFX_RULES 가 0초를 따로 정하면 그쪽이 이긴다.
+        _rules = list(getattr(episode, "SFX_RULES", []))
+        _open = getattr(spec, "OPEN_SFX", None)
+        if _open and not any(isinstance(r[0], (int, float)) and abs(float(r[0])) < 0.01 for r in _rules):
+            _of = os.path.join(os.path.dirname(os.path.dirname(HERE)), "LLJtlSPtAMU", "sfx", _open[0])
+            if os.path.exists(_of):
+                _rules.insert(0, (0.0, _of, _open[1]))
+                _rules.insert(1, (0.55, None))      # 북소리 바로 뒤의 휙은 뺀다 (소리가 겹쳐 지저분하다)
+        for _rule in _rules:
             _t = _anchor_t(_rule[0])
             _before = len(sfx_list)
             sfx_list = [x for x in sfx_list if abs(x[0] - _t) > 0.5]

@@ -146,3 +146,7 @@ BLOCKS = [
 CUTS = [(52.8, 53.35), (0.2, 1.2), (1.5, 2.7)]
 
 EFFECTS = []
+
+# ★사용자 요청(2026-09-15): 영상 앞머리에 두둥픽의 「두둥 북소리」(1.8초)를 깐다. 0초 자리, -4dB.
+#   파일은 편 폴더 sfx/dudung.wav (원본 ~/3D-preset/assets/두둥_북소리.mp3 → 공용 LLJtlSPtAMU/sfx/dudung.wav)
+SFX_RULES = [(0.0, "sfx/dudung.wav", -4), (0.55, None)]   # 북소리 뒤 0.5초 휙은 뺀다
