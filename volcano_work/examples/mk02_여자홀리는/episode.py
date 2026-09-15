@@ -35,7 +35,7 @@
 ★효과자막 없음.
 """
 import spec
-spec.ZOOM = 1.0            # 1080x1084 소재 — 가로 그대로 1080x1014
+spec.ZOOM = 0.83           # ★Vmake 가 지운 자막 자리(y826 아래)에 뭉갠 흔적이 남아 그 아래를 통째로 잘라낸다 → 894x826 (그림이 21% 커진다)
 spec.DLG_TAIL = 0.30       # ★"공백 완전히 지워" — 대사 꼬리를 램프 최소치까지 줄인다
 spec.NARR_PAD = 0.04       # ★나레 앞뒤 여유도 최소로
 
@@ -47,7 +47,7 @@ HEAD2 = "중정 차장 백기태"
 WORK = "메이드 인 코리아 2"
 PLATFORM = "디즈니+"
 
-HARDSUB_TOP = None
+HARDSUB_TOP = 826          # 자막 흔적 띠 위쪽 — crop_filter·reframe 이 이 아래를 안 쓴다
 
 STYLE = "tome"
 
