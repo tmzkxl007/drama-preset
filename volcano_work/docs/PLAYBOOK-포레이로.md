@@ -1194,3 +1194,26 @@ POST https://api.typecast.ai/v1/custom-voices/instant-clone   (multipart: file=w
 
 `episode.py` 에 **`PLATFORM = "디즈니+"`** 를 적는다(없으면 1행만). 그림 칸(y432~1445)·나레·대사 자막 자리는 그대로다.
 ★ttf 안의 family 이름은 `NanumGothic`(띄어쓰기 없음) — `FONT_CREDIT` 에 그대로 적어야 libass 가 찾는다.
+
+### 17-47. ★박힌 글자는 Vmake 로 지우고 그림 칸 **전체**를 쓴다 (2026-09-15 · mk01 vmake 판)
+
+사용자: "vmake로 텍스트 모두 지우고 만들어줘". §17-44 의 "그림 칸만 오린다"는 반쪽이었다 —
+하드섭·노란 편집자 자막이 **그림 안에** 있어서 피하려면 그림을 더 잘라야 했고, `bounds.py` 의 50% 평균 문턱이
+어두운 장면에 속아 y1153 에서 끊는 바람에 1차는 아래 1/3(책상)을 버리고 갔다. 다시 재니 그림 칸은 **y395~1470(1080x1076)**.
+
+1. **행 범위는 프레임별 `max` 로 잰다** — 평균이 아니라. `(g>12).mean(axis=1)` 을 프레임마다 구해 `np.maximum` 으로 모으고 0.3 문턱.
+2. **그림 칸만 오려 Vmake 에 보낸다** (`crop=1080:1076:0:395`, crf 16). 제목띠·로고는 검은 띠라 어차피 안 들어가고, 파일이 작아진다.
+3. **Vmake = `~/vmake` 의 VmakeSkill (clawhub `vmake-skill` 2.0.0)** — 키는 `~/vmake/skills/vmake-skill/scripts/.env`.
+   ```
+   cd ~/vmake && PYTHONIOENCODING=utf-8 PYTHONUTF8=1 ./venv/Scripts/python.exe skills/vmake-skill/scripts/vmake_ai.py \
+       run-task --task SKM0002 --input "<절대경로>/src_pic.mp4" --agent-name claude-code > vmake_result.json 2> vmake_stderr.log
+   ```
+   `SKM0002(Subtitle)` 가 하드섭·노란 편집자 자막을 **잔여물 없이** 지웠다(57초 · 33MB · 약 4분 · 유료 쿼터 1회).
+   결과는 `output_urls[0]` 의 mp4(1080x1076 · 24000/1001 · 69MB) — `curl` 로 받는다. 카탈로그 다른 항목: SKM0003 Smart(지우기) · SKM0001 화질복원.
+   ★UTF-8 환경변수 두 개가 없으면 카탈로그 중국어 때문에 cp949 로 죽는다. 백그라운드로 돌리고 `vmake_stderr.log` 의 `poll n/128` 로 본다.
+4. **소리는 Vmake 결과 것을 쓰지 않는다.** 1차 `src.mp4` 의 처리음(demucs 배경음악 빼기 + 편집자 나레 mute)을 그대로 얹는다 —
+   `ffmpeg -i src_vmake.mp4 -i ../mk01_눈빛제압/src.mp4 -map 0:v -map 1:a -c copy -shortest src.mp4`. 두 파일 다 0초부터 같은 길이라 시각이 맞는다.
+5. `episode.py` 는 **`spec.ZOOM = 1.0`** — 1080x1076(1.004:1) 은 폭을 다 써도 1014 높이가 남아 `crop=1080:1014:0:31` 이 된다. `HARDSUB_TOP = None`.
+6. 나레 캐시(`narr/`)·`asr_ko.json`·`narr_align.json`·`fonts/` 는 1차 폴더에서 복사하면 TTS·전사를 다시 안 한다(캐시 도장이 같다).
+
+결과 `mk01_눈빛제압_vmake.mp4` 45.8초 · 씽크 대사 0.00/나레 0.02 · 자막 잔여물 0(대사 12지점 눈검사) · 남은 경고는 1차 확정본과 같은 두 개(나레 44%·분당 31.4컷).
