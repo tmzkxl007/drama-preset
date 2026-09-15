@@ -1,0 +1,14 @@
+실측  잉크높이 101  폭 848  글자수 12  y 1148~1248  x 62~908  중심x 485
+
+글꼴                  맞춘크기     렌더폭     실측폭차
+Dongle               128     766       82
+SingleDay            112    1077      229
+PoorStory            114    1097      249
+GamjaFlower          118    1112      264
+HiMelody             123    1154      306
+Jua                  123    1204      356
+Gaegu                121    1222      374
+DoHyeon              132    1226      378
+BlackHanSans         133    1363      515
+
+font_match.png 저장
