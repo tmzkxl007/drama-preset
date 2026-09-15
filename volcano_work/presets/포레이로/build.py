@@ -766,7 +766,13 @@ for _r in rows:
 
 EFFS, EFF_OFF = fit(spec.FONT_DLG, "오! 여신의 탄생이다", spec.EFF_INK, spec.CAP_MAXW, 5, "효과자막")
 WORKNAME = getattr(episode, "WORK", "")
-CRS, CR_OFF = fit(spec.FONT_DLG, WORKNAME or "작품명", spec.CREDIT_INK, 900, 5, "작품명")
+PLATFORM = getattr(episode, "PLATFORM", "")
+_FCR = getattr(spec, "FONT_CREDIT", spec.FONT_DLG)
+CREDIT1 = getattr(spec, "CREDIT_FMT", "{work}").format(work=WORKNAME or "작품명")
+CREDIT2 = getattr(spec, "CREDIT2_FMT", "").format(platform=PLATFORM) if PLATFORM else ""
+CRS, CR_OFF = fit(_FCR, CREDIT1, spec.CREDIT_INK, 900, 5, "작품명")
+if CREDIT2:
+    CR2S, CR2_OFF = fit(_FCR, CREDIT2, getattr(spec, "CREDIT2_INK", spec.CREDIT_INK), 900, 5, "풀영상 안내")
 
 SX = spec.FONT_SCALEX
 ST = "0,0,0,0,{sx},100,0,0,1,{o},{sh},{al},{ml},{mr},{mv},1"
@@ -778,16 +784,19 @@ A = ["[Script Info]", "ScriptType: v4.00+",
      " Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
      # 제목 두 행 — 위쪽 가운데 기준(al 8)이라 \pos 의 y 가 곧 잉크 위쪽이다
      f"Style: H1,{spec.FONT_HEAD},{H1S},{spec.COL_HEAD1},&H00FFFFFF,{spec.COL_OUTLINE},&H00000000,"
-     + ST.format(sx=SX, o=8, sh=0, al=8, ml=40, mr=40, mv=0),
+     + ST.format(sx=SX, o=getattr(spec, "HEAD_OUTLINE", 8), sh=0, al=8, ml=40, mr=40, mv=0),
      f"Style: H2,{spec.FONT_HEAD},{H2S},{spec.COL_HEAD2},&H00FFFFFF,{spec.COL_OUTLINE},&H00000000,"
-     + ST.format(sx=SX, o=8, sh=0, al=8, ml=40, mr=40, mv=0),
+     + ST.format(sx=SX, o=getattr(spec, "HEAD_OUTLINE", 8), sh=0, al=8, ml=40, mr=40, mv=0),
      # ★나레(살구·1행·위)와 대사(흰색·1~2행·아래)를 스타일부터 가른다
      f"Style: NARR,{spec.FONT_NARR},{NARRS},{spec.COL_NARR},&H00FFFFFF,{spec.COL_OUTLINE},"
      f"&H00000000," + ST.format(sx=SX, o=spec.OUTLINE_PX, sh=0, al=5, ml=35, mr=35, mv=0),
      f"Style: CAP,{spec.FONT_DLG},{CAPS},{spec.COL_DLG},&H00FFFFFF,{spec.COL_OUTLINE},"
      f"&H00000000," + ST.format(sx=SX, o=spec.OUTLINE_PX, sh=0, al=5, ml=35, mr=35, mv=0),
-     f"Style: CREDIT,{spec.FONT_DLG},{CRS},{spec.COL_CREDIT},&H00FFFFFF,{spec.COL_OUTLINE},"
+     f"Style: CREDIT,{_FCR},{CRS},{spec.COL_CREDIT},&H00FFFFFF,{spec.COL_OUTLINE},"
      f"&H00000000," + ST.format(sx=SX, o=spec.CREDIT_OUTLINE, sh=0, al=5, ml=30, mr=30, mv=0),
+     (f"Style: CREDIT2,{_FCR},{CR2S},{spec.COL_CREDIT},&H00FFFFFF,{spec.COL_OUTLINE},"
+      f"&H00000000," + ST.format(sx=SX, o=spec.CREDIT_OUTLINE, sh=0, al=5, ml=30, mr=30, mv=0))
+     if CREDIT2 else "",
      f"Style: EFF,{spec.FONT_DLG},{EFFS},{spec.COL_EFF},&H00FFFFFF,{spec.COL_OUTLINE},"
      f"&H00000000," + ST.format(sx=SX, o=spec.OUTLINE_PX, sh=0, al=5, ml=30, mr=30, mv=0),
      "", "[Events]",
@@ -797,7 +806,10 @@ A.append(f"Dialogue: 0,{tc(0)},{tc(TOTAL)},H1,,0,0,0,,"
          f"{POS % round(spec.HEAD_Y[0] + H1OFF)}{episode.HEAD1}")
 if WORKNAME:
     A.append(f"Dialogue: 0,{tc(0)},{tc(TOTAL)},CREDIT,,0,0,0,,"
-             f"{POS % round(spec.CREDIT_Y + CR_OFF)}{WORKNAME}")
+             f"{POS % round(spec.CREDIT_Y + CR_OFF)}{CREDIT1}")
+if CREDIT2:
+    A.append(f"Dialogue: 0,{tc(0)},{tc(TOTAL)},CREDIT2,,0,0,0,,"
+             f"{POS % round(getattr(spec, 'CREDIT2_Y', spec.CREDIT_Y + 80) + CR2_OFF)}{CREDIT2}")
 A.append(f"Dialogue: 0,{tc(0)},{tc(TOTAL)},H2,,0,0,0,,"
          f"{POS % round(spec.HEAD_Y[1] + H2OFF)}{episode.HEAD2}")
 # ★효과자막이 자막 자리('cap')에 뜨는 동안에는 흰 자막을 감춘다.
@@ -1106,7 +1118,11 @@ fc2.append("".join(mix) + f"amix=inputs={len(mix)}:normalize=0:dropout_transitio
            f"loudnorm=I={spec.MASTER_LUFS}:TP={spec.MASTER_TP}:LRA={spec.LRA_MAX},"
            f"aresample=48000[aout]")
 # 그림을 y=VID_Y 에 앉히고 위아래는 검정. 아래 띠는 비워 둔다(§17-2).
-fc2.append(f"[0:v]pad={spec.CANVAS[0]}:{spec.CANVAS[1]}:0:{spec.VID_Y}:black,"
+# ★2026-09-15 템플릿: 제목 2행 뒤에 가로 꽉 찬 빨간 띠(spec.HEAD2_BAND)를 자막보다 먼저 그린다.
+_band = getattr(spec, "HEAD2_BAND", None)
+_bandf = (f"drawbox=x=0:y={_band[0]}:w={spec.CANVAS[0]}:h={_band[1]-_band[0]}:color={_band[2]}:t=fill,"
+          if _band else "")
+fc2.append(f"[0:v]pad={spec.CANVAS[0]}:{spec.CANVAS[1]}:0:{spec.VID_Y}:black,{_bandf}"
            f"ass=captions.ass:fontsdir=fonts[vout]")
 OUT = getattr(episode, "OUT", "out.mp4")
 print("2차 굽기…")

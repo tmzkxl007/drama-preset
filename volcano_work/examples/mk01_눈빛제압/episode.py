@@ -50,6 +50,7 @@ OUT = "mk01_눈빛제압.mp4"
 HEAD1 = "이간질하는 표학수를"
 HEAD2 = "눈빛으로 제압하는 백기태"
 WORK = "메이드 인 코리아 2"
+PLATFORM = "디즈니+"       # 아래 띠 2행 「풀영상은 디즈니+에서」
 
 HARDSUB_TOP = None
 

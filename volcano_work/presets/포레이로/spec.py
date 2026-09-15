@@ -21,19 +21,31 @@ BOTTOM_BAND = 474           # 아래 검은 띠 1446~1919
 # ── 아래 띠의 작품명 (토메이로 실측) ───────────────────
 #   xSHSX1XDZB0("캐셔로") 실측: 흰색 · 글자높이 64 · 중심 y1563 · 가운데 정렬
 #   episode.py 의 WORK 를 그대로 찍는다. 출처를 밝히는 자리다.
-CREDIT_Y = 1563             # 잉크 세로 중앙
-CREDIT_INK = 64             # 글자높이
-COL_CREDIT = "&H00FFFFFF"   # 흰색
+#   ★2026-09-15 사용자 템플릿 변경(20260915_160801.png · 헌트 클립형): 아래 띠에 두 줄 —
+#     1행 「-작품명-」 · 2행 「풀영상은 <플랫폼>에서」(episode.PLATFORM, 없으면 1행만). 연회색 고딕.
+CREDIT_Y = 1490             # 1행 잉크 세로 중앙  (예전 한 줄 템플릿: 1563)
+CREDIT2_Y = 1575            # 2행 잉크 세로 중앙
+CREDIT_INK = 52             # 글자높이 (예전 64)
+CREDIT2_INK = 52
+COL_CREDIT = "&H00E6E6E6"   # 연회색 #E6E6E6 (예전 흰색)
 CREDIT_OUTLINE = 0          # 검은 띠 위라 테두리가 필요 없다
+CREDIT_FMT = "-{work}-"     # 1행 꼴
+CREDIT2_FMT = "풀영상은 {platform}에서"
+FONT_CREDIT = "NanumGothic"   # ttf 안의 family 이름이 띄어쓰기 없다
 ZOOM = 0.60                 # 1920x1080 원본에서 가운데 1150x1080 만 쓴다 (1150/1920)
 
 # ── 제목 두 행 ──────────────────────────────────────────
 #   1행 = 수식·조건절(살구색) / 2행 = 주어·인물(흰색). 항상 명사구로 끝난다.
-HEAD_Y = (204, 315)         # 두 행의 잉크 위쪽 y (2행 아래끝 ~410, 그림까지 22px 여백)
-HEAD_INK = (95, 92)         # ★목표 잉크 높이. 글자크기는 여기에 맞춰 재서 정한다
-HEAD_SIZE = (107, 112)      # Jua 로 위 잉크높이를 맞춘 값 — 글꼴 바꾸면 다시 재라
-HEAD_MAXW = 940             # 잉크 폭 상한 (실측 최대 917). 넘으면 비례로 줄인다
-COL_HEAD1 = "&H008DB0F7"    # 살구 #F7B08D  (ASS 는 BGR)
+#   ★2026-09-15 사용자 템플릿 변경(20260915_160801.png · 헌트 클립형):
+#     1행 노랑 글자(검은 바탕) · 2행 흰 글자 + **가로 꽉 찬 빨간 띠** · 굵은 고딕(Black Han Sans).
+#     예전 포레이로 값: HEAD_Y (204,315) · INK (95,92) · MAXW 940 · 1행 살구 &H008DB0F7 · 글꼴 코코초이툰
+HEAD_Y = (188, 300)         # 두 행의 잉크 위쪽 y (2행 아래끝 ~380, 그림 432 까지 여백)
+HEAD_INK = (80, 80)         # ★목표 잉크 높이. 글자크기는 여기에 맞춰 재서 정한다
+HEAD_SIZE = (107, 112)      # (안 씀 — fit 이 잰다)
+HEAD_MAXW = 1000            # 잉크 폭 상한. 넘으면 비례로 줄인다
+HEAD_OUTLINE = 4            # 굵은 고딕이라 테두리는 얇게
+HEAD2_BAND = (282, 392, "0xE60012")   # 2행 뒤 빨간 띠 (y0, y1, 색). None 이면 안 그린다
+COL_HEAD1 = "&H0000F2FF"    # 노랑 #FFF200  (ASS 는 BGR)
 COL_HEAD2 = "&H00FFFFFF"    # 흰색 #FFFFFF
 
 # ── 자막 — ★나레와 대사는 색·행수·덩이 길이로 갈린다 (2026-09-05 재실측, §17-4 정정)
@@ -99,7 +111,7 @@ SFX_DIFF_MIN = 12           # 그래도 이보다 작으면 안 깐다 (거의 �
 # ── 글꼴 ────────────────────────────────────────────────
 # ★사용자 지시: 대사 = 그리운 코코초이툰 · 나레 = 도현체
 #   (산돌 네모니2 는 유료 산돌구름 글꼴이라 못 넣는다 — 사용자가 코코초이툰으로 바꿨다)
-FONT_HEAD = "Griun Cocochoitoon"        # 제목 — 사용자 지시로 대사와 같은 글꼴
+FONT_HEAD = "Black Han Sans"            # 제목 — 2026-09-15 헌트 클립형 템플릿(굵은 고딕). 예전: Griun Cocochoitoon
 FONT_NARR = "BM DoHyeon"                # 나레이션
 FONT_DLG = "Griun Cocochoitoon"         # 대사
 FONT_SCALEX = 100                       # 글꼴이 바뀌었으니 좁히지 않는다
@@ -116,6 +128,8 @@ def _griun():
 
 FONTS = {
     "Jua.ttf": ("googlefonts", "Jua", "400"),
+    "BlackHanSans.ttf": ("googlefonts", "Black Han Sans", "400"),
+    "NanumGothic.ttf": ("googlefonts", "Nanum Gothic", "700"),
     "BMDoHyeon.ttf":
         "https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMDOHYEON.woff",
     "GriunCocochoitoon.ttf":
