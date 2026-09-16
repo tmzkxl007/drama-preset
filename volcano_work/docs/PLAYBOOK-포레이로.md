@@ -1251,3 +1251,11 @@ POST https://api.typecast.ai/v1/custom-voices/instant-clone   (multipart: file=w
 `LLJtlSPtAMU/sfx/dudung.wav` 로 옮겨 두고 `spec.OPEN_SFX = ("dudung.wav", -4)` 로 **모든 편 0초**에 깐다.
 북소리 바로 뒤(0.55초)의 자동 휙은 겹쳐서 지저분하니 같이 뺀다. 편에서 끄려면 `SFX_RULES = [(0.0, None)]`.
 ★파일은 이식팩에 동봉한다(`volcano_work/LLJtlSPtAMU/sfx/dudung.wav`).
+
+### 17-49. 린박스 샘플을 포레이로로 다시 만들 때 — 완성본이 아니라 **원본 구간**으로 (2026-09-16 · mk05)
+
+사용자가 린박스 완성본(`~/OneDrive/문서/린박스/<편>_샘플.mp4`)을 주며 "drama-preset 으로"라고 하면, 그 mp4 를 소재로 쓰지 마라(자막·나레가 박혀 있다).
+`~/volcano_work/린박스/<편>/rinbox_edit.json` 의 `sequence[].source_in/out` 과 `ingest.json` 의 `source`(사용자 화면녹화 전편, 1920x802)로
+**원본 구간을 직접 잘라 이어 붙인다**(`ffmpeg -ss/-to` → concat). 자막이 없으니 Vmake 도, 나레 지우기도 필요 없다.
+`transcript.json` 은 `[start,end,word]` 낱말 목록인데 글자는 ASR 수준이라 시각만 참고하고, 이어 붙인 `src.mp4` 를 `_asr_sm.py` 로 다시 전사한다.
+1920x802 소재는 `crop_filter` 가 854x802 를 잡는다(ZOOM 덮어쓰기 불필요). 어두운 사무실은 `LIFT = 25`.
