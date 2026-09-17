@@ -29,8 +29,8 @@ spec.NARR_PAD = 0.04
 SRC = "src.mp4"
 OUT = "mk10_사면복권.mp4"
 
-HEAD1 = "사면복권 약속해 줘"
-HEAD2 = "700억 들고 온 장건영"
+HEAD1 = "검사에서 전과자로"
+HEAD2 = "돌아온 장건영"
 WORK = "메이드 인 코리아 2"
 PLATFORM = "디즈니+"
 
