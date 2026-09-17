@@ -31,8 +31,8 @@ spec.NARR_PAD = 0.04
 SRC = "src.mp4"
 OUT = "mk11_소영vs오검사.mp4"
 
-HEAD1 = "약 끊으라는 검사에게"
-HEAD2 = "소금 뿌리는 백소영"
+HEAD1 = "검사한테 소금 뿌리는"
+HEAD2 = "백기태 동생 백소영"
 WORK = "메이드 인 코리아 2"
 PLATFORM = "디즈니+"
 
