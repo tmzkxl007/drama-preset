@@ -33,8 +33,8 @@ spec.NARR_PAD = 0.04
 SRC = "src.mp4"
 OUT = "mk09_기현흔들기.mp4"
 
-HEAD1 = "형을 배신하란 겁니까"
-HEAD2 = "흔들리는 기현"
+HEAD1 = "가족이냐 정의냐"
+HEAD2 = "흔들리는 백기현"
 WORK = "메이드 인 코리아 2"
 PLATFORM = "디즈니+"
 
