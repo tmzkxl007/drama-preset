@@ -27,8 +27,8 @@ spec.NARR_PAD = 0.04
 SRC = "src.mp4"
 OUT = "mk07_장건영컴백.mp4"
 
-HEAD1 = "기태 700억을 턴"
-HEAD2 = "특임 고문 장건영"
+HEAD1 = "복수의 칼을 갈고 나타난"
+HEAD2 = "숙적 장건영"
 WORK = "메이드 인 코리아 2"
 PLATFORM = "디즈니+"
 
