@@ -27,8 +27,8 @@ spec.NARR_PAD = 0.04
 SRC = "src.mp4"
 OUT = "mk08_황대식숨통.mp4"
 
-HEAD1 = "황대식 숨통을 끊겠다는"
-HEAD2 = "백기태의 선언"
+HEAD1 = "벼랑 끝 기태의"
+HEAD2 = "마지막 선택"
 WORK = "메이드 인 코리아 2"
 PLATFORM = "디즈니+"
 
