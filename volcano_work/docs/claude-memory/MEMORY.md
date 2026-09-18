@@ -11,3 +11,4 @@
 - [완성본만 건넨다](deliver-only-the-final-video.md) — 중간 파일 목록을 늘어놓지 말 것
 - [쇼츠는 업로드 세트와 한 벌](shorts-with-upload-set.md) — 제목·설명글·해시태그를 영상과 같이 준다
 - [세션 기록 커밋 규칙](always-commit-session-record.md) — 작업이 끝나면 대화·배운 것을 빠짐없이 기록·커밋한다 (최상위 규칙)
+- [포레이로 진행 상태](forey-progress.md) — 메이드인코리아2 mk05~mk24 납품, 남은 후보, 기준 편 mk13b_촌평, 포인트 목록 오류 정정
