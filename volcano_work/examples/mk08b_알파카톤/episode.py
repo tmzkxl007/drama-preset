@@ -10,7 +10,7 @@
 import spec
 spec.DLG_TAIL = 0.30
 spec.NARR_PAD = 0.04
-spec.TTS_TEMPO = 1.1
+spec.TTS_TEMPO = 1.3
 
 SRC = "src.mp4"
 OUT = "mk08b_알파카톤.mp4"
