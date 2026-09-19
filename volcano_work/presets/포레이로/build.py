@@ -573,6 +573,19 @@ for _e in EFFECTS:
 
 chk(bool(getattr(episode, "WORK", "")), "WORK(작품명)가 비었다 — 설명문 출처 표기에 쓴다")
 
+# ── 2026-09-19 나레 연속 금지 (부록 M-16): 나레 두 마디 사이엔 반드시 대사 ──
+_prevN = None
+for _r in rows:
+    if _r["kind"] == "N":
+        if _prevN is not None:
+            WARN.append(f"나레 '{_prevN[:12]}' → '{_r['text'][:12]}' 가 연달아 온다 — 부록 M-16, 사이에 대사를 끼우거나 한 마디를 빼라")
+        _prevN = _r["text"]
+    else:
+        _prevN = None
+for _r in rows:
+    if _r["kind"] == "N" and len(_r["text"].replace("|", "").replace(" ", "")) > 20:
+        WARN.append(f"나레 '{_r['text']}' {len(_r['text'].replace(' ',''))}자 — 부록 M-16, 한 마디 18자 안팎으로")
+
 # ── 부록 M 나레 낱말 검사 (2026-09-18 사용자 지적 세 가지) ──
 #   ① `~기에` 어미  ② 직함·신분(부장·중령·검사·고문·생도…)   ※장소 검사는 사용자가 취소(09-18 "별로다")
 #   나레에서만 본다 — 대사 자막은 들리는 대로 둔다. 걸리면 이름·관계어·상황으로 바꿔 쓴다.
